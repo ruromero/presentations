@@ -1,0 +1,7 @@
+apiVersion: restaurant.ruben.redhat.com/v1alpha1
+kind: Restaurant
+metadata:
+  name: example-restaurant
+spec:
+  # Add fields here
+  size: 3
