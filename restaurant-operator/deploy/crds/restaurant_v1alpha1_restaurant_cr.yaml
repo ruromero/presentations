@@ -1,7 +1,37 @@
 apiVersion: restaurant.ruben.redhat.com/v1alpha1
 kind: Restaurant
 metadata:
-  name: example-restaurant
+  name: los-pipos
 spec:
-  # Add fields here
-  size: 3
+  name: Mesón Los Pipos
+  location: Granada
+  foodType: Tapas bar
+  contact: 958 28 47 10
+  menu:
+    starters:
+      - name: Ensalada tropical
+        description: La ensalada que te gusta pero con aguacate y piña
+        price: 8
+      - name: Croquetas
+        description: Caseras y de jamón serrano
+        price: 7
+      - name: Berenjenas fritas
+        description: Muy crujientes y con miel de caña
+        price: 8
+    main:
+      - name: Fritura de pescado
+        description: Revuelto de chopitos, puntillitas, calamares y pescado de temporada
+        price: 10
+      - name: Migas
+        description: De harina con sardinas y tomates secos
+        price: 9
+      - name: Plato alpujarreño
+        description: Papas a lo pobre con pimientos, chorizo, morcilla y huevos fritos
+        price: 11.2
+    desserts:
+      - name: Arroz con leche
+        descrption: Y canela
+        price: 2
+      - name: Piononos
+        description: Dulce tradicional granadino
+        price: 4
