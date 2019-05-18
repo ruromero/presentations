@@ -1,11 +1,10 @@
-name: Serranito
-description: Degusta platos típicos andaluces de la gastronomía serrana
-price: 15
 starters:
   - name: Jamón ibérico
     description: Unas finas y deliciosas lonchas de nuestro mejor jamón
+    price: 15
   - name: Croquetas de queso curado y jamón serrano
     description: Tiernas y jugosas. No te las pierdas
+    price: 10
     allergens:
       - lactosa
       - gluten
@@ -13,14 +12,17 @@ starters:
 main:
   - name: Alpujarreño
     description: Chorizo, Morcilla, papas a lo pobre y huevos fritos. ¡Ay omá!
+    price: 14
     allergens:
       - lactosa
       - huevos
   - name: Presa ibérica a la brasa
     description: Especiada con romero y tomillo y servida con patatas y pimientos
+    price: 20
 desserts:
   - name: Leche frita
     description: La de toda la vida
+    price: 4.5
     allergens:
       - lactosa
       - huevos
@@ -29,6 +31,7 @@ desserts:
       - gluten
   - name: Natillas de la casa
     description: Con galleta María y tó
+    price: 3.75
     allergens:
       - lactosa
       - gluten

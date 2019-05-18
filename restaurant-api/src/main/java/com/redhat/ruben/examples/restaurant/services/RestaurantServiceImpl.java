@@ -9,11 +9,17 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class RestaurantServiceImpl implements RestaurantService {
 
-    @ConfigProperty(name = "restaurant_name")
+    @ConfigProperty(name = "restaurant_name", defaultValue = "Quarkus Deli")
     String name;
 
-    @ConfigProperty(name = "restaurant_location")
+    @ConfigProperty(name = "restaurant_location", defaultValue = "Granada")
     String location;
+
+    @ConfigProperty(name = "restaurant_food_type", defaultValue = "Fat free Java apps")
+    String foodType;
+
+    @ConfigProperty(name = "restaurant_contact", defaultValue = "958 66 24 42")
+    String contact;
 
     private Restaurant restaurant;
 
@@ -21,7 +27,9 @@ public class RestaurantServiceImpl implements RestaurantService {
     public void init() {
         this.restaurant = new Restaurant()
                 .setName(name)
-                .setLocation(location);
+                .setLocation(location)
+                .setFoodType(foodType)
+                .setContact(contact);
     }
 
     @Override

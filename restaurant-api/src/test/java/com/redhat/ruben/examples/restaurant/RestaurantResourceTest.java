@@ -22,7 +22,8 @@ public class RestaurantResourceTest {
                 .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("name", equalTo("Casa Ruben"))
-                .body("location", equalTo("C/ Altramuz 22, Motril"));
+                .body("location", equalTo("C/ Altramuz 22, Motril"))
+                .body("foodType", equalTo("Andalusian"));
     }
 
 
@@ -34,7 +35,7 @@ public class RestaurantResourceTest {
                 .assertThat()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("name", equalTo("Serranito"))
-                .body("price", equalTo(15f));
+                .body("starters[0].name", equalTo("Jamón ibérico"))
+                .body("starters[0].price", equalTo(15f));
     }
 }

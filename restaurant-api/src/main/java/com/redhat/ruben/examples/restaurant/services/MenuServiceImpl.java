@@ -2,7 +2,6 @@ package com.redhat.ruben.examples.restaurant.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -11,27 +10,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.redhat.ruben.examples.restaurant.model.Menu;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class MenuServiceImpl implements MenuService {
 
-    private static final String DEFAULT_RESTAURANT = "Andalusian";
+    private static final Logger logger = LoggerFactory.getLogger(MenuServiceImpl.class);
 
-    @ConfigProperty(name = "menus_path", defaultValue = ".")
+    @ConfigProperty(name = "menu_path", defaultValue = ".")
     String menusPath;
-
-    @ConfigProperty(name = "restaurant_type", defaultValue = DEFAULT_RESTAURANT)
-    String type;
 
     private Menu menu;
 
     @PostConstruct
     public void loadMenu() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        String fileName = String.format("%s/menu.yaml", menusPath);
         try {
-            this.menu = mapper.readValue(new File(String.format("%s/menu-%s.yaml", menusPath, type.toLowerCase())), Menu.class);
+            this.menu = mapper.readValue(new File(fileName), Menu.class);
+            logger.debug("Loaded menu {}", menu);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Unable to read menu from file {}", fileName, e);
         }
     }
 

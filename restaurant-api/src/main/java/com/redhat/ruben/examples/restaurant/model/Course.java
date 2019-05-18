@@ -7,6 +7,7 @@ public class Course {
     private String name;
     private String description;
     private Set<String> allergens;
+    private Float price;
 
     public String getName() {
         return name;
@@ -31,4 +32,13 @@ public class Course {
     public void setAllergens(Set<String> allergens) {
         this.allergens = allergens;
     }
+
+    public Float getPrice() {
+        return price;
+    }
+
+    public void setPrice(Float price) {
+        this.price = price;
+    }
+
 }
