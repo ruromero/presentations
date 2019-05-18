@@ -31,7 +31,7 @@ type Menu struct {
 type Course struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description,omitempty"`
-	Price       float64  `json:"price"`
+	Price       float32  `json:"price"`
 	Allergens   []string `json:"allergens,omitempty"`
 }
 

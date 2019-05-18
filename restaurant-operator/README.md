@@ -24,11 +24,17 @@ type RestaurantSpec struct {
 
 ## Generate CRD
 
+Runs the kube-openapi OpenAPIv3 code generator for all Custom Resource Definition (CRD) API tagged fields under pkg/apis/....
+
+Note: This command must be run every time a tagged API struct or struct field for a custom resource type is updated.
+
 ```{bash}
 operator-sdk generate openapi
 ```
 
 ## Generate K8S
+
+After modifying the *_types.go file always run the following command to update the generated code for that resource type
 
 ```{bash}
 operator-sdk generate k8s
