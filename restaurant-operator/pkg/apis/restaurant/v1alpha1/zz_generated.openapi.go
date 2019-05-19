@@ -68,29 +68,10 @@ func schema_pkg_apis_restaurant_v1alpha1_RestaurantSpec(ref common.ReferenceCall
 			SchemaProps: spec.SchemaProps{
 				Description: "RestaurantSpec defines the desired state of Restaurant",
 				Properties: map[string]spec.Schema{
-					"name": {
+					"info": {
 						SchemaProps: spec.SchemaProps{
 							Description: "INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html",
-							Type:        []string{"string"},
-							Format:      "",
-						},
-					},
-					"foodType": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"location": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
-						},
-					},
-					"contact": {
-						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Ref:         ref("github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Info"),
 						},
 					},
 					"menu": {
@@ -104,11 +85,11 @@ func schema_pkg_apis_restaurant_v1alpha1_RestaurantSpec(ref common.ReferenceCall
 						},
 					},
 				},
-				Required: []string{"name", "foodType", "menu", "deployment"},
+				Required: []string{"info", "menu", "deployment"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.DeploymentSpec", "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Menu"},
+			"github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.DeploymentSpec", "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Info", "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Menu"},
 	}
 }
 

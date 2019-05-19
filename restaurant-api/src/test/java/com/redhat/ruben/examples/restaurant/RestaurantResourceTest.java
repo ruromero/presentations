@@ -21,9 +21,9 @@ public class RestaurantResourceTest {
                 .assertThat()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("name", equalTo("Casa Ruben"))
-                .body("location", equalTo("C/ Altramuz 22, Motril"))
-                .body("foodType", equalTo("Andalusian"));
+                .body("name", equalTo("Quarkus Deli"))
+                .body("address", equalTo("Camino de Ronda 124, Granada"))
+                .body("foodType", equalTo("Fat free Java apps"));
     }
 
 

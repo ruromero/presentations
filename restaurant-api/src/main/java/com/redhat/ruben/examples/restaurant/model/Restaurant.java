@@ -3,9 +3,9 @@ package com.redhat.ruben.examples.restaurant.model;
 public class Restaurant {
 
     private String name;
-    private String location;
+    private String address;
     private String foodType;
-    private String contact;
+    private String phoneNumber;
 
     public String getName() {
         return name;
@@ -16,12 +16,12 @@ public class Restaurant {
         return this;
     }
 
-    public String getLocation() {
-        return location;
+    public String getAddress() {
+        return address;
     }
 
-    public Restaurant setLocation(String location) {
-        this.location = location;
+    public Restaurant setAddress(String address) {
+        this.address = address;
         return this;
     }
 
@@ -34,12 +34,12 @@ public class Restaurant {
         return this;
     }
 
-    public String getContact() {
-        return contact;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public Restaurant setContact(String contact) {
-        this.contact = contact;
+    public Restaurant setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
         return this;
     }
 

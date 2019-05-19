@@ -18,15 +18,17 @@ public class MenuServiceImpl implements MenuService {
 
     private static final Logger logger = LoggerFactory.getLogger(MenuServiceImpl.class);
 
-    @ConfigProperty(name = "menu_path", defaultValue = ".")
-    String menusPath;
+    private static final String MENU_FILE = "menu.yaml";
+
+    @ConfigProperty(name = "data_path", defaultValue = ".")
+    String dataPath;
 
     private Menu menu;
 
     @PostConstruct
     public void loadMenu() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        String fileName = String.format("%s/menu.yaml", menusPath);
+        String fileName = String.format("%s/%s", dataPath, MENU_FILE);
         try {
             this.menu = mapper.readValue(new File(fileName), Menu.class);
             logger.debug("Loaded menu {}", menu);

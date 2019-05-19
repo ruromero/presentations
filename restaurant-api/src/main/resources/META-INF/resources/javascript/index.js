@@ -73,8 +73,12 @@ class InfoBadge extends React.Component {
           <ul>
             <li><span className="bold">Name:</span> {this.props.name}</li>
             <li><span className="bold">Food:</span> {this.props.foodType}</li>
-            <li><span className="bold">Location:</span> {this.props.location}</li>
-            <li><span className="bold">Reservations:</span> {this.props.contact}</li>
+            {
+                this.props.address ? <li><span className="bold">Address:</span> {this.props.address}</li> : ""
+            }
+            {
+                this.props.phoneNumber ? <li><span className="bold">Reservations:</span> {this.props.phoneNumber}</li> : ''
+            }
           </ul>
         </div>
       </div>
@@ -93,8 +97,8 @@ class Restaurant extends React.Component {
         this.setState({
           name: r.name,
           foodType: r.foodType,
-          location: r.location,
-          contact: r.contact
+          address: r.address,
+          phoneNumber: r.phoneNumber
         });
       });
     fetch("/api/menu")
@@ -116,7 +120,7 @@ class Restaurant extends React.Component {
             {this.state.menu && <Courses name="Main course" courses={this.state.menu.main}></Courses>}
             {this.state.menu && <Courses name="Desserts" courses={this.state.menu.desserts}></Courses>}
           </div>
-          <InfoBadge name={this.state.name} location={this.state.location} foodType={this.state.foodType} contact={this.state.contact}></InfoBadge>
+          <InfoBadge name={this.state.name} address={this.state.address} foodType={this.state.foodType} phoneNumber={this.state.phoneNumber}></InfoBadge>
         </div>
       </React.Fragment>
     );

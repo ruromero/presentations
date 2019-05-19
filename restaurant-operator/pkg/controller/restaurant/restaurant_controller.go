@@ -262,8 +262,11 @@ func (r *ReconcileRestaurant) reconcileIngress(cr *v1.Restaurant, reqLogger logr
 
 func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
 	// Define a new ConfigMap object
-	configMap := newConfigMapForCR(cr)
+	configMap, err := newConfigMapForCR(cr)
 
+	if err != nil {
+		return reconcile.Result{}, err
+	}
 	// Set Restaurant instance as the owner and controller
 	if err := controllerutil.SetControllerReference(cr, configMap, r.scheme); err != nil {
 		return reconcile.Result{}, err
@@ -271,7 +274,7 @@ func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger lo
 
 	// Check if this ConfigMap already exists
 	found := &corev1.ConfigMap{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: configMap.Name, Namespace: configMap.Namespace}, found)
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: configMap.Name, Namespace: configMap.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		reqLogger.Info("Creating a new ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
 		err = r.client.Create(context.TODO(), configMap)
@@ -317,7 +320,7 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 					Containers: []corev1.Container{
 						{
 							Name:    "restaurant",
-							Image:   "quay.io/ruben/restaurant-api:latest",
+							Image:   "quay.io/ruben/restaurant-api:1.0",
 							Command: []string{"./application", "-Dquarkus.http.host=0.0.0.0"},
 							Ports: []corev1.ContainerPort{
 								{
@@ -327,31 +330,19 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 							},
 							Env: []corev1.EnvVar{
 								{
-									Name:  "RESTAURANT_NAME",
-									Value: cr.Spec.Name,
-								}, {
-									Name:  "RESTAURANT_LOCATION",
-									Value: cr.Spec.Location,
-								}, {
-									Name:  "RESTAURANT_FOOD_TYPE",
-									Value: cr.Spec.FoodType,
-								}, {
-									Name:  "RESTAURANT_CONTACT",
-									Value: cr.Spec.Contact,
-								}, {
-									Name:  "MENU_PATH",
-									Value: "/config",
+									Name:  "DATA_PATH",
+									Value: "/data",
 								},
 							},
 							Resources: cr.Spec.Deployment.Resources,
 							VolumeMounts: []corev1.VolumeMount{{
-								Name:      "menu",
-								MountPath: "/config",
+								Name:      "data",
+								MountPath: "/data",
 							}},
 						},
 					},
 					Volumes: []corev1.Volume{{
-						Name: "menu",
+						Name: "data",
 						VolumeSource: corev1.VolumeSource{
 							ConfigMap: &corev1.ConfigMapVolumeSource{
 								LocalObjectReference: corev1.LocalObjectReference{
@@ -427,14 +418,18 @@ func newIngressForCR(cr *v1.Restaurant) *v1beta1.Ingress {
 	}
 }
 
-func newConfigMapForCR(cr *v1.Restaurant) *corev1.ConfigMap {
-	menu := ""
+func newConfigMapForCR(cr *v1.Restaurant) (*corev1.ConfigMap, error) {
 	d, err := yaml.Marshal(&cr.Spec.Menu)
 	if err != nil {
-		fmt.Println(err)
-	} else {
-		menu = string(d)
+		return nil, err
 	}
+	menu := string(d)
+
+	d, err = yaml.Marshal(&cr.Spec.Info)
+	if err != nil {
+		return nil, err
+	}
+	info := string(d)
 
 	return &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -444,8 +439,9 @@ func newConfigMapForCR(cr *v1.Restaurant) *corev1.ConfigMap {
 		},
 		Data: map[string]string{
 			"menu.yaml": menu,
+			"info.yaml": info,
 		},
-	}
+	}, nil
 }
 
 func getLabels(cr *v1.Restaurant) map[string]string {

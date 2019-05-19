@@ -2,8 +2,8 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: '[{"apiVersion":"restaurant.ruben.redhat.com/v1alpha1","kind":"Restaurant","metadata":{"name":"los-pipos"},"spec":{"contact":"958
-      28 47 10","foodType":"Tapas bar","location":"Granada","menu":{"desserts":[{"descrption":"Y
+    alm-examples: '[{"apiVersion":"restaurant.ruben.redhat.com/v1alpha1","kind":"Restaurant","metadata":{"name":"los-pipos"},"spec":{"deployment":{"hostnameSuffix":"192.168.122.124.xip.io"},"info":{"address":"Granada","foodType":"Tapas
+      bar","name":"Mesón Los Pipos","phoneNumber":"958 28 47 10"},"menu":{"desserts":[{"descrption":"Y
       canela","name":"Arroz con leche","price":2},{"description":"Dulce tradicional
       granadino","name":"Piononos","price":4}],"main":[{"description":"Revuelto de
       chopitos, puntillitas, calamares y pescado de temporada","name":"Fritura de
@@ -11,8 +11,7 @@ metadata:
       a lo pobre con pimientos, chorizo, morcilla y huevos fritos","name":"Plato alpujarreño","price":11.2}],"starters":[{"description":"La
       ensalada que te gusta pero con aguacate y piña","name":"Ensalada tropical","price":8},{"description":"Caseras
       y de jamón serrano","name":"Croquetas","price":7},{"description":"Muy crujientes
-      y con miel de caña","name":"Berenjenas fritas","price":8}]},"name":"Mesón Los
-      Pipos"}}]'
+      y con miel de caña","name":"Berenjenas fritas","price":8}]}}}]'
     capabilities: Basic Install
   name: restaurant-operator.v0.1.0
   namespace: placeholder
@@ -54,7 +53,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: restaurant-operator
-                image: REPLACE_IMAGE
+                image: quay.io/ruben/restaurant-operator:1.0
                 imagePullPolicy: Always
                 name: restaurant-operator
                 resources: {}

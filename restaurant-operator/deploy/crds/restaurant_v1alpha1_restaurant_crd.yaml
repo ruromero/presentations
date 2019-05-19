@@ -29,8 +29,6 @@ spec:
           type: object
         spec:
           properties:
-            contact:
-              type: string
             deployment:
               properties:
                 hostnameSuffix:
@@ -43,10 +41,24 @@ spec:
               required:
               - hostnameSuffix
               type: object
-            foodType:
-              type: string
-            location:
-              type: string
+            info:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              properties:
+                address:
+                  type: string
+                foodType:
+                  type: string
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+              required:
+              - name
+              - foodType
+              type: object
             menu:
               properties:
                 desserts:
@@ -111,15 +123,8 @@ spec:
               - main
               - desserts
               type: object
-            name:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
-              type: string
           required:
-          - name
-          - foodType
+          - info
           - menu
           - deployment
           type: object

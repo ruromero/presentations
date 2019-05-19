@@ -29,12 +29,36 @@ spec:
           type: object
         spec:
           properties:
-            contact:
-              type: string
-            foodType:
-              type: string
-            location:
-              type: string
+            deployment:
+              properties:
+                hostnameSuffix:
+                  type: string
+                replicas:
+                  format: int32
+                  type: integer
+                resources:
+                  type: object
+              required:
+              - hostnameSuffix
+              type: object
+            info:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              properties:
+                address:
+                  type: string
+                foodType:
+                  type: string
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+              required:
+              - name
+              - foodType
+              type: object
             menu:
               properties:
                 desserts:
@@ -49,7 +73,7 @@ spec:
                       name:
                         type: string
                       price:
-                        format: double
+                        format: float
                         type: number
                     required:
                     - name
@@ -68,7 +92,7 @@ spec:
                       name:
                         type: string
                       price:
-                        format: double
+                        format: float
                         type: number
                     required:
                     - name
@@ -87,7 +111,7 @@ spec:
                       name:
                         type: string
                       price:
-                        format: double
+                        format: float
                         type: number
                     required:
                     - name
@@ -99,16 +123,10 @@ spec:
               - main
               - desserts
               type: object
-            name:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
-              type: string
           required:
-          - name
-          - foodType
+          - info
           - menu
+          - deployment
           type: object
         status:
           type: object

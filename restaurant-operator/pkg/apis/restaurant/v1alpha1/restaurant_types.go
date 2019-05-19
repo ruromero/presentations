@@ -14,10 +14,7 @@ type RestaurantSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Name       string         `json:"name"`
-	FoodType   string         `json:"foodType"`
-	Location   string         `json:"location,omitempty"`
-	Contact    string         `json:"contact,omitempty"`
+	Info       Info           `json:"info"`
 	Menu       Menu           `json:"menu"`
 	Deployment DeploymentSpec `json:"deployment"`
 }
@@ -27,6 +24,14 @@ type DeploymentSpec struct {
 	HostnameSuffix string                      `json:"hostnameSuffix"`
 	Replicas       int32                       `json:"replicas,omitempty"`
 	Resources      corev1.ResourceRequirements `json:"resources,omitempty"`
+}
+
+// Info defines the Restaurant
+type Info struct {
+	Name        string `json:"name"`
+	FoodType    string `json:"foodType" yaml:"foodType"`
+	PhoneNumber string `json:"phoneNumber,omitempty" yaml:"phoneNumber,omitempty"`
+	Address     string `json:"address,omitempty"`
 }
 
 // Menu defines what is served in the restaurant

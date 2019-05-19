@@ -3,12 +3,13 @@ kind: Restaurant
 metadata:
   name: los-pipos
 spec:
-  name: Mesón Los Pipos
-  location: Granada
-  foodType: Tapas bar
-  contact: 958 28 47 10
   deployment:
     hostnameSuffix: 192.168.122.124.xip.io
+  info:
+    name: Mesón Los Pipos
+    foodType: Tapas bar
+    phoneNumber: 958 28 47 10
+    address: Granada
   menu:
     starters:
       - name: Ensalada tropical
@@ -32,7 +33,7 @@ spec:
         price: 11.2
     desserts:
       - name: Arroz con leche
-        descrption: Y canela
+        description: Y canela
         price: 2
       - name: Piononos
         description: Dulce tradicional granadino

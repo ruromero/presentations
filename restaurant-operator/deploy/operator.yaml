@@ -15,8 +15,7 @@ spec:
       serviceAccountName: restaurant-operator
       containers:
         - name: restaurant-operator
-          # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: quay.io/ruben/restaurant-operator:1.0
           command:
           - restaurant-operator
           imagePullPolicy: Always
