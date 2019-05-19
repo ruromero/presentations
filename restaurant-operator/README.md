@@ -48,6 +48,12 @@ operator-sdk add controller --api-version=restaurant.ruben.redhat.com/v1alpha1 -
 
 ## Implement Operator
 
+* Update pod definition
+* Create service
+* Create route
+
+* Update status with restaurant
+
 ## Build operator
 
 ## OLM - CSV Generation

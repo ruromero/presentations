@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -13,11 +14,18 @@ type RestaurantSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
-	Name     string `json:"name"`
-	FoodType string `json:"foodType"`
-	Location string `json:"location,omitempty"`
-	Contact  string `json:"contact,omitempty"`
-	Menu     Menu   `json:"menu"`
+	Name       string         `json:"name"`
+	FoodType   string         `json:"foodType"`
+	Location   string         `json:"location,omitempty"`
+	Contact    string         `json:"contact,omitempty"`
+	Menu       Menu           `json:"menu"`
+	Deployment DeploymentSpec `json:"deployment"`
+}
+
+// DeploymentSpec defines how the application will be deployed in the cluster
+type DeploymentSpec struct {
+	Replicas  int32                       `json:"replicas"`
+	Resources corev1.ResourceRequirements `json:"resources"`
 }
 
 // Menu defines what is served in the restaurant
