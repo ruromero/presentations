@@ -50,16 +50,29 @@ operator-sdk add controller --api-version=restaurant.ruben.redhat.com/v1alpha1 -
 
 * Update pod definition
 * Create service
-* Create route
+* Create route/ingress
+* Create configmap
+* Create deployment
+* Watch for changes in Deployment/Service/Configmap
 
-* Update status with restaurant
+* Update status with restaurant //TODO
 
 ## Build operator
 
-## OLM - CSV Generation
+```{bash}
+operator-sdk build quay.io/ruben/restaurant-operator:0.1.0
+```
+
+Replace the IMAGE placeholder
 
 ```{bash}
-operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
+sed -i 's|REPLACE_IMAGE|quay.io/ruben/restaurant-operator:0.1.0|g' deploy/operator.yaml
+```
+
+Push the image to the registry
+
+```{bash}
+docker push quay.io/ruben/restaurant-operator:0.1.0
 ```
 
 ## Deployment
@@ -75,3 +88,9 @@ Prerequisites:
 Prerequisites:
 
 * Openshift 3.11 or 4
+
+## OLM - CSV Generation
+
+```{bash}
+operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
+```

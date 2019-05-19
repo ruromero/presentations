@@ -3,7 +3,7 @@ kind: ClusterServiceVersion
 metadata:
   annotations:
     alm-examples: '[{"apiVersion":"restaurant.ruben.redhat.com/v1alpha1","kind":"Restaurant","metadata":{"name":"los-pipos"},"spec":{"deployment":{"hostnameSuffix":"192.168.122.124.xip.io"},"info":{"address":"Granada","foodType":"Tapas
-      bar","name":"Mesón Los Pipos","phoneNumber":"958 28 47 10"},"menu":{"desserts":[{"descrption":"Y
+      bar","name":"Mesón Los Pipos","phoneNumber":"958 28 47 10"},"menu":{"desserts":[{"description":"Y
       canela","name":"Arroz con leche","price":2},{"description":"Dulce tradicional
       granadino","name":"Piononos","price":4}],"main":[{"description":"Revuelto de
       chopitos, puntillitas, calamares y pescado de temporada","name":"Fritura de
@@ -53,7 +53,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: restaurant-operator
-                image: quay.io/ruben/restaurant-operator:1.0
+                image: quay.io/ruben/restaurant-operator:0.1.0
                 imagePullPolicy: Always
                 name: restaurant-operator
                 resources: {}
