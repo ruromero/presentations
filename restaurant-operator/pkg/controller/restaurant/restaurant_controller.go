@@ -299,6 +299,14 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 	if replicas == 0 {
 		replicas = 1
 	}
+	probe := &corev1.Probe{
+		Handler: corev1.Handler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Path: "/health",
+				Port: intstr.FromInt(8080),
+			},
+		},
+	}
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cr.Name,
@@ -334,7 +342,9 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 									Value: "/data",
 								},
 							},
-							Resources: cr.Spec.Deployment.Resources,
+							LivenessProbe:  probe,
+							ReadinessProbe: probe,
+							Resources:      cr.Spec.Deployment.Resources,
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      "data",
 								MountPath: "/data",
