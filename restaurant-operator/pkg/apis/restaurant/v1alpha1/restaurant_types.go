@@ -24,8 +24,9 @@ type RestaurantSpec struct {
 
 // DeploymentSpec defines how the application will be deployed in the cluster
 type DeploymentSpec struct {
-	Replicas  int32                       `json:"replicas"`
-	Resources corev1.ResourceRequirements `json:"resources"`
+	HostnameSuffix string                      `json:"hostnameSuffix"`
+	Replicas       int32                       `json:"replicas,omitempty"`
+	Resources      corev1.ResourceRequirements `json:"resources,omitempty"`
 }
 
 // Menu defines what is served in the restaurant

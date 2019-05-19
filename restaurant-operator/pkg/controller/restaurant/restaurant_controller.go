@@ -2,12 +2,16 @@ package restaurant
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1"
+	"gopkg.in/yaml.v2"
 
+	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1beta1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -60,6 +64,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	ownedObjects := []runtime.Object{
 		&appsv1.Deployment{},
 		&corev1.Service{},
+		&corev1.ConfigMap{},
 	}
 	for _, ownedObject := range ownedObjects {
 		err = c.Watch(&source.Kind{Type: ownedObject}, &handler.EnqueueRequestForOwner{
@@ -109,8 +114,14 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 		return reconcile.Result{}, err
 	}
 
+	// Reconcile Configmap
+	result, err := r.reconcileConfigMap(instance, reqLogger)
+	if err != nil {
+		return result, err
+	}
+
 	// Reconcile the Deployment object
-	result, err := r.reconcileDeployment(instance, reqLogger)
+	result, err = r.reconcileDeployment(instance, reqLogger)
 	if err != nil {
 		return result, err
 	}
@@ -120,7 +131,11 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 	if err != nil {
 		return result, err
 	}
-	return reconcile.Result{}, nil
+
+	// Reconcile the K8S ingress or OCP Route
+	result, err = r.reconcileRoute(instance, reqLogger)
+
+	return reconcile.Result{}, err
 }
 
 func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
@@ -183,6 +198,98 @@ func (r *ReconcileRestaurant) reconcileService(cr *v1.Restaurant, reqLogger logr
 	return reconcile.Result{}, nil
 }
 
+func (r *ReconcileRestaurant) reconcileRoute(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
+	// Define a route
+	route := newRouteForCR(cr)
+
+	// Set Restaurant instance as the owner and controller
+	if err := controllerutil.SetControllerReference(cr, route, r.scheme); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Check if this Route already exists
+	found := &routev1.Route{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: route.Name, Namespace: route.Namespace}, found)
+	if err != nil && errors.IsNotFound(err) {
+		reqLogger.Info("Creating a new Route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
+		err = r.client.Create(context.TODO(), route)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		// Route created successfully - don't requeue
+		return reconcile.Result{}, nil
+	} else if err != nil && runtime.IsNotRegisteredError(err) {
+		reqLogger.Info("Cannot find kind Route. Creating Ingress object instead")
+		return r.reconcileIngress(cr, reqLogger)
+	} else if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Route already exists - don't requeue
+	reqLogger.Info("Skip reconcile: Route already exists", "Route.Namespace", found.Namespace, "Route.Name", found.Name)
+	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileRestaurant) reconcileIngress(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
+	// Define an Ingress
+	ingress := newIngressForCR(cr)
+	// Set Restaurant instance as the owner and controller
+	if err := controllerutil.SetControllerReference(cr, ingress, r.scheme); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Check if this Ingress already exists
+	found := &v1beta1.Ingress{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: ingress.Name, Namespace: ingress.Namespace}, found)
+	if err != nil && errors.IsNotFound(err) {
+		reqLogger.Info("Creating a new Ingress", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
+		err = r.client.Create(context.TODO(), ingress)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		// Ingress created successfully - don't requeue
+		return reconcile.Result{}, nil
+	} else if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Ingress already exists - don't requeue
+	reqLogger.Info("Skip reconcile: Ingress already exists", "Ingress.Namespace", found.Namespace, "Ingress.Name", found.Name)
+	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
+	// Define a new ConfigMap object
+	configMap := newConfigMapForCR(cr)
+
+	// Set Restaurant instance as the owner and controller
+	if err := controllerutil.SetControllerReference(cr, configMap, r.scheme); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// Check if this ConfigMap already exists
+	found := &corev1.ConfigMap{}
+	err := r.client.Get(context.TODO(), types.NamespacedName{Name: configMap.Name, Namespace: configMap.Namespace}, found)
+	if err != nil && errors.IsNotFound(err) {
+		reqLogger.Info("Creating a new ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
+		err = r.client.Create(context.TODO(), configMap)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		// ConfigMap created successfully - don't requeue
+		return reconcile.Result{}, nil
+	} else if err != nil {
+		return reconcile.Result{}, err
+	}
+
+	// ConfigMap already exists - don't requeue
+	reqLogger.Info("Skip reconcile: ConfigMap already exists", "ConfigMap.Namespace", found.Namespace, "ConfigMap.Name", found.Name)
+	return reconcile.Result{}, nil
+}
+
 // newDeploymentForCR returns a deployment with the same name/namespace as the cr
 func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 	replicas := cr.Spec.Deployment.Replicas
@@ -231,11 +338,28 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 								}, {
 									Name:  "RESTAURANT_CONTACT",
 									Value: cr.Spec.Contact,
+								}, {
+									Name:  "MENU_PATH",
+									Value: "/config",
 								},
 							},
 							Resources: cr.Spec.Deployment.Resources,
+							VolumeMounts: []corev1.VolumeMount{{
+								Name:      "menu",
+								MountPath: "/config",
+							}},
 						},
 					},
+					Volumes: []corev1.Volume{{
+						Name: "menu",
+						VolumeSource: corev1.VolumeSource{
+							ConfigMap: &corev1.ConfigMapVolumeSource{
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: cr.Name,
+								},
+							},
+						},
+					}},
 				},
 			},
 		},
@@ -258,6 +382,68 @@ func newServiceForCR(cr *v1.Restaurant) *corev1.Service {
 				Port:       8080,
 				TargetPort: intstr.FromInt(8080),
 			}},
+		},
+	}
+}
+
+func newRouteForCR(cr *v1.Restaurant) *routev1.Route {
+	return &routev1.Route{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels:    getLabels(cr),
+		},
+		Spec: routev1.RouteSpec{
+			To: routev1.RouteTargetReference{
+				Kind: "Service",
+				Name: cr.Name,
+			},
+		},
+	}
+}
+
+func newIngressForCR(cr *v1.Restaurant) *v1beta1.Ingress {
+	return &v1beta1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels:    getLabels(cr),
+		},
+		Spec: v1beta1.IngressSpec{
+			Rules: []v1beta1.IngressRule{{
+				Host: fmt.Sprintf("%s.%s", cr.Name, cr.Spec.Deployment.HostnameSuffix),
+				IngressRuleValue: v1beta1.IngressRuleValue{
+					HTTP: &v1beta1.HTTPIngressRuleValue{
+						Paths: []v1beta1.HTTPIngressPath{{
+							Backend: v1beta1.IngressBackend{
+								ServiceName: cr.Name,
+								ServicePort: intstr.FromInt(8080),
+							},
+						}},
+					},
+				},
+			}},
+		},
+	}
+}
+
+func newConfigMapForCR(cr *v1.Restaurant) *corev1.ConfigMap {
+	menu := ""
+	d, err := yaml.Marshal(&cr.Spec.Menu)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		menu = string(d)
+	}
+
+	return &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      cr.Name,
+			Namespace: cr.Namespace,
+			Labels:    getLabels(cr),
+		},
+		Data: map[string]string{
+			"menu.yaml": menu,
 		},
 	}
 }

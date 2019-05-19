@@ -7,6 +7,8 @@ spec:
   location: Granada
   foodType: Tapas bar
   contact: 958 28 47 10
+  deployment:
+    hostnameSuffix: 192.168.122.124.xip.io
   menu:
     starters:
       - name: Ensalada tropical

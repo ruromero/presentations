@@ -61,3 +61,17 @@ operator-sdk add controller --api-version=restaurant.ruben.redhat.com/v1alpha1 -
 ```{bash}
 operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
 ```
+
+## Deployment
+
+### Kubernetes
+
+Prerequisites:
+
+* Kubernetes cluster (e.g. Minikube) with an ingress controller
+
+### Openshift
+
+Prerequisites:
+
+* Openshift 3.11 or 4

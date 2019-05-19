@@ -98,12 +98,17 @@ func schema_pkg_apis_restaurant_v1alpha1_RestaurantSpec(ref common.ReferenceCall
 							Ref: ref("github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Menu"),
 						},
 					},
+					"deployment": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.DeploymentSpec"),
+						},
+					},
 				},
-				Required: []string{"name", "foodType", "menu"},
+				Required: []string{"name", "foodType", "menu", "deployment"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Menu"},
+			"github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.DeploymentSpec", "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1.Menu"},
 	}
 }
 
