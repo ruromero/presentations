@@ -117,13 +117,13 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// Reconcile Configmap
-	result, needsRollout, err := r.reconcileConfigMap(instance, reqLogger)
+	result, cmVersion, err := r.reconcileConfigMap(instance, reqLogger)
 	if err != nil {
 		return result, err
 	}
 
 	// Reconcile the Deployment object
-	result, err = r.reconcileDeployment(instance, needsRollout, reqLogger)
+	result, err = r.reconcileDeployment(instance, cmVersion, reqLogger)
 	if err != nil {
 		return result, err
 	}
@@ -140,9 +140,9 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 	return reconcile.Result{}, err
 }
 
-func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, needsRollout bool, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, cmVersion string, reqLogger logr.Logger) (reconcile.Result, error) {
 	// Define a new Deployment object
-	deployment := newDeploymentForCR(cr)
+	deployment := newDeploymentForCR(cr, cmVersion)
 
 	// Set Restaurant instance as the owner and controller
 	if err := controllerutil.SetControllerReference(cr, deployment, r.scheme); err != nil {
@@ -164,7 +164,9 @@ func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, needsRollou
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
-	if needsRollout || !reflect.DeepEqual(found.Spec.Replicas, deployment.Spec.Replicas) ||
+
+	if (cmVersion != "" && cmVersion != found.Spec.Template.Annotations["configmapResourceVersion"]) ||
+		!reflect.DeepEqual(found.Spec.Replicas, deployment.Spec.Replicas) ||
 		!reflect.DeepEqual(found.Spec.Template.Spec.Containers[0].Resources, cr.Spec.Deployment.Resources) {
 		if err = r.client.Update(context.TODO(), deployment); err != nil {
 			return reconcile.Result{}, err
@@ -276,16 +278,16 @@ func (r *ReconcileRestaurant) reconcileIngress(cr *v1.Restaurant, reqLogger logr
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, bool, error) {
+func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, string, error) {
 	// Define a new ConfigMap object
 	configMap, err := newConfigMapForCR(cr)
 
 	if err != nil {
-		return reconcile.Result{}, false, err
+		return reconcile.Result{}, "", err
 	}
 	// Set Restaurant instance as the owner and controller
 	if err := controllerutil.SetControllerReference(cr, configMap, r.scheme); err != nil {
-		return reconcile.Result{}, false, err
+		return reconcile.Result{}, "", err
 	}
 
 	// Check if this ConfigMap already exists
@@ -295,42 +297,36 @@ func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger lo
 		reqLogger.Info("Creating a new ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
 		err = r.client.Create(context.TODO(), configMap)
 		if err != nil {
-			return reconcile.Result{}, false, err
+			return reconcile.Result{}, "", err
 		}
 
 		// ConfigMap created successfully - don't requeue
-		return reconcile.Result{}, true, nil
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: configMap.Name, Namespace: configMap.Namespace}, found)
+		if err != nil {
+			return reconcile.Result{}, "", err
+		}
+		return reconcile.Result{}, found.ObjectMeta.ResourceVersion, nil
 	} else if err != nil {
-		return reconcile.Result{}, false, err
+		return reconcile.Result{}, "", err
 	}
 
 	if !reflect.DeepEqual(found.Data, configMap.Data) {
 		if err = r.client.Update(context.TODO(), configMap); err != nil {
-			return reconcile.Result{}, false, err
+			return reconcile.Result{}, "", err
 		}
 		reqLogger.Info("Updated existing ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
-		return reconcile.Result{}, true, nil
-		// Need to delete pods to take latest changes
-		// podList := &corev1.PodList{}
-		// labelSelector := labels.SelectorFromSet(getLabels(cr))
-		// listOps := &client.ListOptions{Namespace: cr.Namespace, LabelSelector: labelSelector}
-		// if err = r.client.List(context.TODO(), listOps, podList); err != nil {
-		// 	return reconcile.Result{}, err
-		// }
-
-		// for _, pod := range podList.Items {
-		// 	if err = r.client.Delete(context.TODO(), &pod); err != nil {
-		// 		return reconcile.Result{}, err
-		// 	}
-		// }
-		// ConfigMap already exists - don't requeue
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: configMap.Name, Namespace: configMap.Namespace}, found)
+		if err != nil {
+			return reconcile.Result{}, "", err
+		}
+		return reconcile.Result{}, found.ObjectMeta.ResourceVersion, nil
 	}
 	reqLogger.Info("Skip reconcile: ConfigMap already exists", "ConfigMap.Namespace", found.Namespace, "ConfigMap.Name", found.Name)
-	return reconcile.Result{}, false, nil
+	return reconcile.Result{}, configMap.ObjectMeta.ResourceVersion, nil
 }
 
 // newDeploymentForCR returns a deployment with the same name/namespace as the cr
-func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
+func newDeploymentForCR(cr *v1.Restaurant, cmVersion string) *appsv1.Deployment {
 	replicas := cr.Spec.Deployment.Replicas
 	if replicas == 0 {
 		replicas = 1
@@ -343,8 +339,8 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 			},
 		},
 	}
-	rollingUpdateVal := intstr.FromInt(1)
-
+	maxSurge := intstr.FromInt(1)
+	maxUnavailable := intstr.FromInt(0)
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cr.Name,
@@ -358,8 +354,8 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 				RollingUpdate: &appsv1.RollingUpdateDeployment{
-					MaxSurge:       &rollingUpdateVal,
-					MaxUnavailable: &rollingUpdateVal,
+					MaxSurge:       &maxSurge,
+					MaxUnavailable: &maxUnavailable,
 				},
 			},
 			Selector: &metav1.LabelSelector{
@@ -368,6 +364,9 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: getLabels(cr),
+					Annotations: map[string]string{
+						"configMapResourceVersion": cmVersion,
+					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{

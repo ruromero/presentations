@@ -94,3 +94,12 @@ Prerequisites:
 ```{bash}
 operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
 ```
+
+## Demo resources
+
+Watch for the phoneNumber to be updated
+
+```{bash}
+url=`kubectl get ingress --no-headers | awk '{print$2}'`
+watch "curl -s $url/api/ | jq -r .phoneNumber "
+```
