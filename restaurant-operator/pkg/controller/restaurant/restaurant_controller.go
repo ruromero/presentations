@@ -3,6 +3,7 @@ package restaurant
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/ruromero/presentations/restaurant-operator/pkg/apis/restaurant/v1alpha1"
@@ -66,6 +67,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		&corev1.Service{},
 		&corev1.ConfigMap{},
 	}
+
 	for _, ownedObject := range ownedObjects {
 		err = c.Watch(&source.Kind{Type: ownedObject}, &handler.EnqueueRequestForOwner{
 			IsController: true,
@@ -115,13 +117,13 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 	}
 
 	// Reconcile Configmap
-	result, err := r.reconcileConfigMap(instance, reqLogger)
+	result, needsRollout, err := r.reconcileConfigMap(instance, reqLogger)
 	if err != nil {
 		return result, err
 	}
 
 	// Reconcile the Deployment object
-	result, err = r.reconcileDeployment(instance, reqLogger)
+	result, err = r.reconcileDeployment(instance, needsRollout, reqLogger)
 	if err != nil {
 		return result, err
 	}
@@ -138,7 +140,7 @@ func (r *ReconcileRestaurant) Reconcile(request reconcile.Request) (reconcile.Re
 	return reconcile.Result{}, err
 }
 
-func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, needsRollout bool, reqLogger logr.Logger) (reconcile.Result, error) {
 	// Define a new Deployment object
 	deployment := newDeploymentForCR(cr)
 
@@ -162,9 +164,17 @@ func (r *ReconcileRestaurant) reconcileDeployment(cr *v1.Restaurant, reqLogger l
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
+	if needsRollout || !reflect.DeepEqual(found.Spec.Replicas, deployment.Spec.Replicas) ||
+		!reflect.DeepEqual(found.Spec.Template.Spec.Containers[0].Resources, cr.Spec.Deployment.Resources) {
+		if err = r.client.Update(context.TODO(), deployment); err != nil {
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("Updated existing Deployment", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+	} else {
+		// Deployment already exists - don't requeue
+		reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+	}
 
-	// Deployment already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Deployment already exists", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
 	return reconcile.Result{}, nil
 }
 
@@ -254,22 +264,28 @@ func (r *ReconcileRestaurant) reconcileIngress(cr *v1.Restaurant, reqLogger logr
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
-
-	// Ingress already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Ingress already exists", "Ingress.Namespace", found.Namespace, "Ingress.Name", found.Name)
+	if !reflect.DeepEqual(found.Spec.Rules[0].Host, ingress.Spec.Rules[0].Host) {
+		if err = r.client.Update(context.TODO(), ingress); err != nil {
+			return reconcile.Result{}, err
+		}
+		reqLogger.Info("Updated existing Ingress", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
+	} else {
+		// Ingress already exists - don't requeue
+		reqLogger.Info("Skip reconcile: Ingress already exists", "Ingress.Namespace", found.Namespace, "Ingress.Name", found.Name)
+	}
 	return reconcile.Result{}, nil
 }
 
-func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, error) {
+func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger logr.Logger) (reconcile.Result, bool, error) {
 	// Define a new ConfigMap object
 	configMap, err := newConfigMapForCR(cr)
 
 	if err != nil {
-		return reconcile.Result{}, err
+		return reconcile.Result{}, false, err
 	}
 	// Set Restaurant instance as the owner and controller
 	if err := controllerutil.SetControllerReference(cr, configMap, r.scheme); err != nil {
-		return reconcile.Result{}, err
+		return reconcile.Result{}, false, err
 	}
 
 	// Check if this ConfigMap already exists
@@ -279,18 +295,38 @@ func (r *ReconcileRestaurant) reconcileConfigMap(cr *v1.Restaurant, reqLogger lo
 		reqLogger.Info("Creating a new ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
 		err = r.client.Create(context.TODO(), configMap)
 		if err != nil {
-			return reconcile.Result{}, err
+			return reconcile.Result{}, false, err
 		}
 
 		// ConfigMap created successfully - don't requeue
-		return reconcile.Result{}, nil
+		return reconcile.Result{}, true, nil
 	} else if err != nil {
-		return reconcile.Result{}, err
+		return reconcile.Result{}, false, err
 	}
 
-	// ConfigMap already exists - don't requeue
+	if !reflect.DeepEqual(found.Data, configMap.Data) {
+		if err = r.client.Update(context.TODO(), configMap); err != nil {
+			return reconcile.Result{}, false, err
+		}
+		reqLogger.Info("Updated existing ConfigMap", "ConfigMap.Namespace", configMap.Namespace, "ConfigMap.Name", configMap.Name)
+		return reconcile.Result{}, true, nil
+		// Need to delete pods to take latest changes
+		// podList := &corev1.PodList{}
+		// labelSelector := labels.SelectorFromSet(getLabels(cr))
+		// listOps := &client.ListOptions{Namespace: cr.Namespace, LabelSelector: labelSelector}
+		// if err = r.client.List(context.TODO(), listOps, podList); err != nil {
+		// 	return reconcile.Result{}, err
+		// }
+
+		// for _, pod := range podList.Items {
+		// 	if err = r.client.Delete(context.TODO(), &pod); err != nil {
+		// 		return reconcile.Result{}, err
+		// 	}
+		// }
+		// ConfigMap already exists - don't requeue
+	}
 	reqLogger.Info("Skip reconcile: ConfigMap already exists", "ConfigMap.Namespace", found.Namespace, "ConfigMap.Name", found.Name)
-	return reconcile.Result{}, nil
+	return reconcile.Result{}, false, nil
 }
 
 // newDeploymentForCR returns a deployment with the same name/namespace as the cr
@@ -307,6 +343,8 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 			},
 		},
 	}
+	rollingUpdateVal := intstr.FromInt(1)
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cr.Name,
@@ -317,6 +355,13 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &appsv1.RollingUpdateDeployment{
+					MaxSurge:       &rollingUpdateVal,
+					MaxUnavailable: &rollingUpdateVal,
+				},
+			},
 			Selector: &metav1.LabelSelector{
 				MatchLabels: getLabels(cr),
 			},
@@ -328,7 +373,7 @@ func newDeploymentForCR(cr *v1.Restaurant) *appsv1.Deployment {
 					Containers: []corev1.Container{
 						{
 							Name:    "restaurant",
-							Image:   "quay.io/ruben/restaurant-api:1.0",
+							Image:   "quay.io/ruben/restaurant-api:latest",
 							Command: []string{"./application", "-Dquarkus.http.host=0.0.0.0"},
 							Ports: []corev1.ContainerPort{
 								{
