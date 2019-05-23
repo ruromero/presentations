@@ -16,7 +16,7 @@ type RestaurantSpec struct {
 	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
 	Info       Info           `json:"info"`
 	Menu       Menu           `json:"menu"`
-	Deployment DeploymentSpec `json:"deployment"`
+	Deployment DeploymentSpec `json:"deployment,omitempty"`
 }
 
 // DeploymentSpec defines how the application will be deployed in the cluster

@@ -1,0 +1,34 @@
+apiVersion: restaurant.ruben.redhat.com/v1alpha1
+kind: Restaurant
+metadata:
+  name: little-bao
+spec:
+  deployment:
+    hostnameSuffix: 192.168.39.21.xip.io
+  info:
+    name: 小包包
+    foodType: Chinese restaurant
+    phoneNumber: +852 2194 0202
+    address: Hong Kong
+  menu:
+    starters:
+      - name: 米饭
+        description: Rice
+        price: 3.5
+      - name: 青菜
+        description: Vegetables
+        price: 4
+    main:
+      - name: 一份宫保鸡丁!
+        description: Kung Pao Chicken
+        price: 12
+      - name: 猪肉
+        description: Pork
+        price: 10
+    desserts:
+      - name: 杭州
+        description: Hangzou
+        price: 5
+      - name: 昆明
+        description: Kunming
+        price: 6

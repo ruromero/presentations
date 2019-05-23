@@ -82,12 +82,25 @@ docker push quay.io/ruben/restaurant-operator:0.1.0
 Prerequisites:
 
 * Kubernetes cluster (e.g. Minikube) with an ingress controller
+* OLM installed
+* OLM console running
+
+```{bash}
+minikube start
+minikube addons enable ingress
+```
+
+or
+
+```{bash}
+make run-local
+```
 
 ### Openshift
 
 Prerequisites:
 
-* Openshift 3.11 or 4
+* Openshift 3.11 (with OLM) or 4.x
 
 ## OLM - CSV Generation
 

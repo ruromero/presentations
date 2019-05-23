@@ -14,6 +14,7 @@ rules:
   - events
   - configmaps
   - secrets
+  - ingress
   verbs:
   - '*'
 - apiGroups:
@@ -50,5 +51,11 @@ rules:
   - restaurant.ruben.redhat.com
   resources:
   - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
   verbs:
   - '*'

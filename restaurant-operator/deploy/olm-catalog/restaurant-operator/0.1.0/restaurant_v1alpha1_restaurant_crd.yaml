@@ -126,7 +126,6 @@ spec:
           required:
           - info
           - menu
-          - deployment
           type: object
         status:
           type: object

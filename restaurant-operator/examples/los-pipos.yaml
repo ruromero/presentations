@@ -4,7 +4,7 @@ metadata:
   name: los-pipos
 spec:
   deployment:
-    hostnameSuffix: 192.168.122.124.xip.io
+    hostnameSuffix: 192.168.39.21.xip.io
   info:
     name: Mesón Los Pipos
     foodType: Tapas bar
