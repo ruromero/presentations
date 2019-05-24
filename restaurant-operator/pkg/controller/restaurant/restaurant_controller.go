@@ -64,8 +64,10 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Watch for changes to secondary resource Pods and requeue the owner Restaurant
 	ownedObjects := []runtime.Object{
 		&appsv1.Deployment{},
-		&corev1.Service{},
 		&corev1.ConfigMap{},
+		&corev1.Service{},
+		&routev1.Route{},
+		&v1beta1.Ingress{},
 	}
 
 	for _, ownedObject := range ownedObjects {
@@ -237,7 +239,14 @@ func (r *ReconcileRestaurant) reconcileRoute(cr *v1.Restaurant, reqLogger logr.L
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
-
+	if cr.Status.Host != found.Spec.Host {
+		cr.Status.Host = fmt.Sprintf("http://%s", found.Spec.Host)
+		err = r.client.Status().Update(context.TODO(), cr)
+		if err != nil {
+			reqLogger.Error(err, "Unable to update status")
+			return reconcile.Result{}, err
+		}
+	}
 	// Route already exists - don't requeue
 	reqLogger.Info("Skip reconcile: Route already exists", "Route.Namespace", found.Namespace, "Route.Name", found.Name)
 	return reconcile.Result{}, nil
@@ -274,6 +283,14 @@ func (r *ReconcileRestaurant) reconcileIngress(cr *v1.Restaurant, reqLogger logr
 	} else {
 		// Ingress already exists - don't requeue
 		reqLogger.Info("Skip reconcile: Ingress already exists", "Ingress.Namespace", found.Namespace, "Ingress.Name", found.Name)
+	}
+	if cr.Status.Host != found.Spec.Rules[0].Host {
+		cr.Status.Host = fmt.Sprintf("http://%s", found.Spec.Rules[0].Host)
+		err = r.client.Status().Update(context.TODO(), cr)
+		if err != nil {
+			reqLogger.Error(err, "Unable to update status")
+			return reconcile.Result{}, err
+		}
 	}
 	return reconcile.Result{}, nil
 }

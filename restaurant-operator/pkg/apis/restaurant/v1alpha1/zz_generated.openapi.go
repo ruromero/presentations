@@ -85,7 +85,7 @@ func schema_pkg_apis_restaurant_v1alpha1_RestaurantSpec(ref common.ReferenceCall
 						},
 					},
 				},
-				Required: []string{"info", "menu", "deployment"},
+				Required: []string{"info", "menu"},
 			},
 		},
 		Dependencies: []string{
@@ -98,7 +98,14 @@ func schema_pkg_apis_restaurant_v1alpha1_RestaurantStatus(ref common.ReferenceCa
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Description: "RestaurantStatus defines the observed state of Restaurant",
-				Properties:  map[string]spec.Schema{},
+				Properties: map[string]spec.Schema{
+					"host": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
 			},
 		},
 		Dependencies: []string{},

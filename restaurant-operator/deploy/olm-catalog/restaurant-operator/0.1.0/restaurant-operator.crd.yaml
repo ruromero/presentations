@@ -128,6 +128,9 @@ spec:
           - menu
           type: object
         status:
+          properties:
+            host:
+              type: string
           type: object
   version: v1alpha1
   versions:

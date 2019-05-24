@@ -126,9 +126,11 @@ spec:
           required:
           - info
           - menu
-          - deployment
           type: object
         status:
+          properties:
+            host:
+              type: string
           type: object
   version: v1alpha1
   versions:
