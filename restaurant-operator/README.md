@@ -53,9 +53,9 @@ operator-sdk add controller --api-version=restaurant.ruben.redhat.com/v1alpha1 -
 * Create route/ingress
 * Create configmap
 * Create deployment
-* Watch for changes in Deployment/Service/Configmap
+* Watch for changes in Deployment/Route/Ingress/Configmap
 
-* Update status with restaurant //TODO
+* Update status with restaurant host
 
 ## Build operator
 
@@ -107,6 +107,30 @@ Prerequisites:
 ```{bash}
 operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
 ```
+
+Customize CSV
+
+* Description
+* Icon
+* Maintainer
+* Owner
+* Default application
+* ...
+
+### Add your CSV to the OLM
+
+```{bash}
+kubectl create -f deploy/crds/restaurant_v1alpha1_restaurant_crd.yam
+kubectl create -f deploy/olm-catalog/restaurant-operator/0.1.0/restaurant-operator.0.1.0.clusterserviceversion.yaml
+```
+
+### Create a new Restaurant in OLM
+
+In the Cluster Console, under Operators and Cluster Resource Versions the CSV we just created will appear.
+
+There we will be able to create a new Restaurant by clicking on "Create Restaurant" and using the default resource or providing a new one.
+
+After the Restaurant is deployed click on the Restaurant and the "Restaurant URL" will appear.
 
 ## Demo resources
 

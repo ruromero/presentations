@@ -19,6 +19,12 @@ type RestaurantSpec struct {
 	Deployment DeploymentSpec `json:"deployment,omitempty"`
 }
 
+// RestaurantStatus defines the observed state of Restaurant
+// +k8s:openapi-gen=true
+type RestaurantStatus struct {
+	Host string `json:"host,omitempty"`
+}
+
 // DeploymentSpec defines how the application will be deployed in the cluster
 type DeploymentSpec struct {
 	HostnameSuffix string                      `json:"hostnameSuffix"`
@@ -47,12 +53,6 @@ type Course struct {
 	Description string   `json:"description,omitempty"`
 	Price       float32  `json:"price"`
 	Allergens   []string `json:"allergens,omitempty"`
-}
-
-// RestaurantStatus defines the observed state of Restaurant
-// +k8s:openapi-gen=true
-type RestaurantStatus struct {
-	Host string `json:"host,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
