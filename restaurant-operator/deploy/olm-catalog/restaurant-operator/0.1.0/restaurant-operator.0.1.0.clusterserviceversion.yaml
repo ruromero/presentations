@@ -38,6 +38,8 @@ spec:
   links:
     - name: GitHub repository
       url: https://github.com/ruromero/presentations/tree/master/restaurant-operator
+    - name: Operator-SDK
+      url: https://github.com/operator-framework/operator-sdk
     - name: Quarkus
       url: https://quarkus.io
   description: |
@@ -60,7 +62,7 @@ spec:
       starters:
         - name: AOT Compilation
           description: Don't worry about the startup time any more
-          price: 0
+          price: 1
       main:
         - name: Native images
           descrption: Build your Java application and package to run it natively

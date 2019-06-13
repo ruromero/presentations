@@ -20,13 +20,17 @@ In `restaurant_types.go`
 type RestaurantSpec struct {
     ...
 }
+
+type RestaurantStatus struct {
+    ...
+}
 ```
 
-## Generate CRD
+## Generate CRD OpenAPIV3Schema
 
 Runs the kube-openapi OpenAPIv3 code generator for all Custom Resource Definition (CRD) API tagged fields under pkg/apis/....
 
-Note: This command must be run every time a tagged API struct or struct field for a custom resource type is updated.
+Note: This command can be run every time a tagged API struct or struct field for a custom resource type is updated.
 
 ```{bash}
 operator-sdk generate openapi
@@ -48,12 +52,11 @@ operator-sdk add controller --api-version=restaurant.ruben.redhat.com/v1alpha1 -
 
 ## Implement Operator
 
-* Update pod definition
 * Create service
 * Create route/ingress
 * Create configmap
 * Create deployment
-* Watch for changes in Deployment/Route/Ingress/Configmap
+* Watch for changes in ownedObjects (Deployment/Route/Ingress/ConfigMap)
 
 * Update status with restaurant host
 
@@ -75,11 +78,24 @@ Push the image to the registry
 docker push quay.io/ruben/restaurant-operator:0.1.0
 ```
 
-## Deployment
+## Standard deployment
 
-### Kubernetes
+Use either `kubectl` or `oc`
 
-Prerequisites:
+```{bash}
+kubectl create -f deploy/crd/restaurant.crd.yaml
+kubectl create -f deploy/
+```
+
+### Create a new application
+
+```{bash}
+kubectl create -f examples/los-pipos.yaml
+```
+
+## OLM Deployment
+
+Kubernetes prerequisites:
 
 * Kubernetes cluster (e.g. Minikube) with an ingress controller
 * OLM installed
@@ -96,13 +112,11 @@ or
 make run-local
 ```
 
-### Openshift
-
-Prerequisites:
+Openshift prerequisites:
 
 * Openshift 3.11 (with OLM) or 4.x
 
-## OLM - CSV Generation
+### OLM - CSV Generation
 
 ```{bash}
 operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
