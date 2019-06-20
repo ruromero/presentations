@@ -1,0 +1,7 @@
+packageName: restaurant
+channels:
+- name: alpha
+  currentCSV: restaurant-operator.v0.2.0
+- name: stable
+  currentCSV: restaurant-operator.v0.1.0
+defaultChannel: alpha

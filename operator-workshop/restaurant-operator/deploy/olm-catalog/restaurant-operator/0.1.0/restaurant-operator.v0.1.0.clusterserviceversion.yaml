@@ -1,0 +1,267 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |
+      [
+        {
+          "apiVersion":"restaurant.workshop.redhat.com/v1alpha1",
+          "kind":"Restaurant",
+          "metadata": {
+              "name":"los-pipos"
+          },
+          "spec": {
+            "deployment": {
+              "hostnameSuffix":"192.168.39.170.xip.io"
+            },
+            "info": {
+              "address":"Granada",
+              "foodType":"Tapas bar",
+              "name":"Mesón Los Pipos",
+              "phoneNumber":"958 28 47 10"
+            },
+            "menu": {
+              "desserts": [
+                {
+                  "description":"Y canela",
+                  "name":"Arroz con leche",
+                  "price":2
+                },
+                {
+                  "description":"Dulce tradicional granadino",
+                  "name":"Piononos",
+                  "price":4
+                }
+              ],
+              "main": [
+                {
+                  "description":"Revuelto de chopitos, puntillitas, calamares y pescado de temporada",
+                  "name":"Fritura de pescado",
+                  "price":10
+                },
+                {
+                  "description":"De harina con sardinas y tomates secos",
+                  "name":"Migas",
+                  "price":9
+                },
+                {
+                  "description":"Papas a lo pobre con pimientos, chorizo, morcilla y huevos fritos",
+                  "name":"Plato alpujarreño",
+                  "price":11.2
+                }
+              ],
+              "starters": [
+                {
+                  "description":"La ensalada que te gusta pero con aguacate y piña",
+                  "name":"Ensalada tropical",
+                  "price":8
+                },
+                {
+                  "description":"Caseras y de jamón serrano",
+                  "name":"Croquetas",
+                  "price":7
+                },
+                {
+                  "description":"Muy crujientes y con miel de caña",
+                  "name":"Berenjenas fritas",
+                  "price":8
+                }
+              ]
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: restaurant-operator.v0.1.0
+  namespace: default
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Quarkus app to create awesome webapps for your restaurants.
+      displayName: Restaurant
+      kind: Restaurant
+      name: restaurants.restaurant.workshop.redhat.com
+      version: v1alpha1
+      resources:
+      - kind: Deployment
+        name: ""
+        version: v1
+      - kind: ReplicaSet
+        name: ""
+        version: v1
+      - kind: ConfigMap
+        name: ""
+        version: v1
+      - kind: Service
+        name: ""
+        version: v1
+      - kind: Ingress
+        name: ""
+        version: extensions/v1
+      - kind: Pod
+        name: ""
+        version: v1
+      statusDescriptors:
+      - description: The address for accessing the Restaurant, if it is deployed.
+        displayName: Restaurant URL
+        path: host
+        x-descriptors:
+        - urn:alm:descriptor:org.w3:link
+      version: v1alpha1
+  description: |
+    Restaurants
+    ===========
+
+    Restaurants is an application that provides an easy way to generate web applications for any kind of
+    restaurants.
+
+    ## Usage
+
+    Every restaurant has a contact data and offers a set of courses.
+
+    ```
+    info:
+      name: Quarkus Deli
+      foodType: Fat free Java apps
+      address: GraalVM D.F.
+    menu:
+      starters:
+        - name: AOT Compilation
+          description: Don't worry about the startup time any more
+          price: 1
+      main:
+        - name: Native images
+          descrption: Build your Java application and package to run it natively
+          price: 0
+      dessert:
+        - name: Extensions
+          description: IoC, JWT, JPA, JaxRS for free
+          price: 0
+    ```
+
+    ## Architecture
+
+    The Restaurants application has a Java backend exposing a simple api consumed by a React frontend.
+    The most impressive fact about this application is that it is built using Quarkus framework and packaged
+    into a distroless container.
+    All this results into a 44MB container image that starts in 0.003s
+  displayName: Restaurant Operator
+  icon:
+  - base64data: PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgdmlld0JveD0iMCAwIDUxMiA1MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIHN0eWxlPSJmaWxsOiNEM0M2QTg7IiBkPSJNMjU2LDUxMmMtMzYuODYzLDAtNjYuNzQ2LTEyLjQ1OC02Ni43NDYtMjcuODI2czI5Ljg4My0yNy44MjYsNjYuNzQ2LTI3LjgyNg0KCXM2Ni43NDYsMTIuNDU4LDY2Ljc0NiwyNy44MjZTMjkyLjg2Myw1MTIsMjU2LDUxMnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNCMUE3OEY7IiBkPSJNMjU2LDQ1Ni4zNDh2MzUuMzAyaC02NC4yODljLTEuNTg5LTIuMzgtMi40NTgtNC44ODUtMi40NTgtNy40NzYNCglDMTg5LjI1NCw0NjguODA2LDIxOS4xMzcsNDU2LjM0OCwyNTYsNDU2LjM0OHoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiM1NzU0NEM7IiBkPSJNMjY3LjEyNSwzOTcuNjA5djgyLjkxMWMwLDYuMTQ3LTQuOTgxLDExLjEzLTExLjEyNSwxMS4xM2MtNi4xNDQsMC0xMS4xMjUtNC45ODMtMTEuMTI1LTExLjEzDQoJdi04Mi45MTFjMC02LjE0Nyw0Ljk4MS0xMS4xMywxMS4xMjUtMTEuMTNDMjYyLjE0NCwzODYuNDc5LDI2Ny4xMjUsMzkxLjQ2MiwyNjcuMTI1LDM5Ny42MDl6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojQjc0OTQxOyIgZD0iTTQ0Mi40MzUsMTg2LjUzNmMwLDQwLjczNC0xMi44OSw3OS40MzYtMzcuMjc4LDExMS45MmMtMjIuMjcsMjkuNjYzLTUzLjQzNSw1Mi4zNjItODguMjk2LDY0LjQzNg0KCWMtMi45MjYsMTAuMzI4LTguNDA1LDE5LjY4MS0xNi4wNjMsMjcuMzQ1Yy0xMi4zNTEsMTIuMzU3LTI4LjU3NSwxOC41MzYtNDQuNzk4LDE4LjUzN2MtMTYuMjIzLDAtMzIuNDQ1LTYuMTc4LTQ0Ljc5NC0xOC41MzQNCgljLTcuNjYyLTcuNjY3LTEzLjEzOS0xNy4wMi0xNi4wNjYtMjcuMzQ2Yy0zNC44NjItMTIuMDc0LTY2LjAyOC0zNC43NzQtODguMjk4LTY0LjQzNmMtMjQuMzg3LTMyLjQ4NS0zNy4yNzctNzEuMTg2LTM3LjI3Ny0xMTEuOTIxDQoJQzY5LjU2NSw4My42OCwxNTMuMTk5LDAsMjU2LDBTNDQyLjQzNSw4My42OCw0NDIuNDM1LDE4Ni41MzZ6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojNTAxOTE5OyIgZD0iTTQwNi4xOCwxNzIuNTIyYzAsODIuOTg2LTY3LjIzOCwxNTAuMjYxLTE1MC4xOCwxNTAuMjYxcy0xNTAuMTgtNjcuMjc1LTE1MC4xOC0xNTAuMjYxDQoJUzE3My4wNTgsMjIuMjYxLDI1NiwyMi4yNjFTNDA2LjE4LDg5LjUzNSw0MDYuMTgsMTcyLjUyMnoiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiM4ODg1N0U7IiBkPSJNMjgzLjg3NywyNTAuNDM1aC0wLjEzMmMtNi4xMDcsMC0xMS4wNTgtNC45NTEtMTEuMDU4LTExLjA1OFYxMDUuNzM5aDIyLjI0OXYxMzMuNjM4DQoJQzI5NC45MzUsMjQ1LjQ4NCwyODkuOTg1LDI1MC40MzUsMjgzLjg3NywyNTAuNDM1eiIvPg0KPHBhdGggc3R5bGU9ImZpbGw6I0IxQUNBMzsiIGQ9Ik0zMzkuNDMzLDk0LjYwOXYxMDAuMTc0aC02Ni43NDZWOTQuNjA5SDMzOS40MzN6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojRTVERkQ3OyIgZD0iTTMzOS40MzMsMTY2Ljk1N2wtNjYuNzQ2LTExLjEzdi0zMy4zOTFsNjYuNzQ2LDExLjEzVjE2Ni45NTd6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojODg4NTdFOyIgZD0iTTI1MC40MzgsOTQuNjA5djU1LjY1MmMwLDEyLjI5NS05Ljk2MSwyMi4yNjEtMjIuMjQ5LDIyLjI2MWgtNS41NjJ2NjYuNzgzDQoJYzAsNi4xNDctNC45ODEsMTEuMTMtMTEuMTI1LDExLjEzYy02LjE0NCwwLTExLjEyNS00Ljk4My0xMS4xMjUtMTEuMTN2LTY2Ljc4M2gtNS41NjJjLTEyLjI4OCwwLTIyLjI0OS05Ljk2Ni0yMi4yNDktMjIuMjYxVjk0LjYwOQ0KCWgyNy44MTFoMjIuMjQ5SDI1MC40Mzh6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojMzIzMDMwOyIgZD0iTTE4My42OTEsOTQuNjA5aDExLjEyNXY1MC4wODdjMCwzLjA3My0yLjQ5LDUuNTY1LTUuNTYyLDUuNTY1cy01LjU2Mi0yLjQ5Mi01LjU2Mi01LjU2NVY5NC42MDkNCglIMTgzLjY5MXogTTIwNS45NCwxNDQuNjk2YzAsMy4wNzMsMi40OSw1LjU2NSw1LjU2Miw1LjU2NXM1LjU2Mi0yLjQ5Miw1LjU2Mi01LjU2NVY5NC42MDloLTExLjEyNXY1MC4wODdIMjA1Ljk0eiBNMjI4LjE4OSw5NC42MDkNCgl2NTAuMDg3YzAsMy4wNzMsMi40OSw1LjU2NSw1LjU2Miw1LjU2NWMzLjA3MiwwLDUuNTYyLTIuNDkyLDUuNTYyLTUuNTY1Vjk0LjYwOUgyMjguMTg5eiIvPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo=
+    mediatype: image/svg+xml
+  install:
+    spec:
+      deployments:
+      - name: restaurant-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: restaurant-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: restaurant-operator
+            spec:
+              containers:
+              - command:
+                - restaurant-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: restaurant-operator
+                image: quay.io/ruben/restaurant-operator:latest
+                imagePullPolicy: Always
+                name: restaurant-operator
+                resources: {}
+              serviceAccountName: restaurant-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - restaurant-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - restaurant.workshop.redhat.com
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - extensions
+          resources:
+          - ingresses
+          verbs:
+          - '*'
+        serviceAccountName: restaurant-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - java
+  - quarkus
+  - restaurant
+  - presentations
+  - demo
+  links:
+  - name: GitHub repository
+    url: https://github.com/ruromero/presentations/tree/master/restaurant-operator
+  - name: Operator-SDK
+    url: https://github.com/operator-framework/operator-sdk
+  - name: Quarkus
+    url: https://quarkus.io
+  maintainers:
+  - email: rromerom@redhat.com
+    name: Ruben Romero Montes
+  maturity: alpha
+  provider:
+    name: ruromero
+  version: 0.1.0

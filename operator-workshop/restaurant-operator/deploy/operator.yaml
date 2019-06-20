@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: restaurant-operator
+  template:
+    metadata:
+      labels:
+        name: restaurant-operator
+    spec:
+      serviceAccountName: restaurant-operator
+      containers:
+        - name: restaurant-operator
+          # Replace this with the built image name
+          image: quay.io/ruben/restaurant-operator:latest
+          command:
+          - restaurant-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "restaurant-operator"
