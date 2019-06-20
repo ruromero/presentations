@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: restaurant-subscription
+  namespace: default
+spec:
+  channel: alpha
+  name: restaurant
+  installPlanApproval: Automatic
+  source: workshop-catalog
+  sourceNamespace: default
+

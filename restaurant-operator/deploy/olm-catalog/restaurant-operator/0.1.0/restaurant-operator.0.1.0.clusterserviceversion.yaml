@@ -186,6 +186,14 @@ spec:
           - '*'
           verbs:
           - '*'
+        - apiGroups:
+          - extensions
+          - route.openshift.io
+          resources:
+          - ingresses
+          - routes
+          verbs:
+          - '*'
         serviceAccountName: restaurant-operator
     strategy: deployment
   installModes:
