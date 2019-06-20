@@ -91,6 +91,7 @@ Note: Run this command only when you want to replace the CRD with the new genera
 
 ```{bash}
 kubectl create -f deploy/crds/restaurant_v1alpha1_restaurant_crd.yaml
+go mod vendor
 operator-sdk up local --namespace=default
 ```
 
