@@ -148,13 +148,13 @@ defaultChannel: alpha
 * Build the registry
 
 ```{bash}
-buildah build-using-dockerfile -t quay.io/ruben/workshop-catalog:latest -f upstream-example.Dockerfile .
+buildah build-using-dockerfile -t quay.io/ruben/workshop-catalog:v1 -f upstream-example.Dockerfile .
 ```
 
 * Push it to your quay.io repository (make the repository public)
 
 ```{bash}
-podman push quay.io/ruben/workshop-catalog:latest
+podman push quay.io/ruben/workshop-catalog:v1
 ```
 
 * Create the `CatalogSource`
