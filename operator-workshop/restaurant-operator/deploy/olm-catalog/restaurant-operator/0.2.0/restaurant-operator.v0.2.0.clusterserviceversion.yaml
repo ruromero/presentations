@@ -12,9 +12,9 @@ metadata:
       ensalada que te gusta pero con aguacate y piña","name":"Ensalada tropical","price":8},{"description":"Caseras
       y de jamón serrano","name":"Croquetas","price":7},{"description":"Muy crujientes
       y con miel de caña","name":"Berenjenas fritas","price":8}]}}}]'
-    capabilities: Basic Install
+    capabilities: Seamless Upgrades
   name: restaurant-operator.v0.2.0
-  namespace: default
+  namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:

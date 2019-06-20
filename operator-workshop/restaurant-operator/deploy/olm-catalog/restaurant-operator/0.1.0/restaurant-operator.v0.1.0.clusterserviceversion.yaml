@@ -73,7 +73,7 @@ metadata:
       ]
     capabilities: Basic Install
   name: restaurant-operator.v0.1.0
-  namespace: default
+  namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:

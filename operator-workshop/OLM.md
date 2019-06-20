@@ -35,14 +35,14 @@ Note: I had to remove the `-v` flag in the `command` command and it doesn't list
 ## Generate the Cluster Service Version
 
 ```{bash}
-operator-sdk olm-catalog gen-csv --csv-version 0.1.0
+operator-sdk olm-catalog gen-csv --csv-version 0.1.0 --update-crds
 ```
 
 This command will generate the csv with the version provided and will generate the crds under `deploy/olm-catalog`
 
 Check [generating-a-csv](https://github.com/operator-framework/operator-sdk/blob/master/doc/user/olm-catalog/generating-a-csv.md) and [building-your-csv](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/design/building-your-csv.md) for more details
 
-This command will generate a CSV using the information taken from the following files (that can be customized):
+The resulting CSV will take the information from the following files (can be customized):
 
 * Roles: role.yaml
 * Deployments: operator.yaml
@@ -71,6 +71,8 @@ Recommended fields to fill in:
 * spec.maturity: The Operator's maturity
 
 Find all in the [docs](https://github.com/operator-framework/operator-sdk/blob/master/doc/user/olm-catalog/generating-a-csv.md#csv-fields)
+
+Note: Check how your CSV looks like in the OLM using the [OperatorHub's Preview](https://operatorhub.io/preview)
 
 ## Deploy your Cluster Resource Version manually
 
