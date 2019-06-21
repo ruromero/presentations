@@ -41,7 +41,7 @@ Check the [project scaffolding layout](https://github.com/operator-framework/ope
 ### Let's add a new CRD
 
 ```{bash}
-operator-sdk add api --api-version=restaurant.workshop.redhat.com/v1aplpha1 --kind=Restaurant
+operator-sdk add api --api-version=restaurant.workshop.redhat.com/v1alpha1 --kind=Restaurant
 ```
 
 After that we can see the following changed:
