@@ -1,2 +1,0 @@
-cr-manifest: "deploy/crds/restaurant_v1alpha1_restaurant_crd.yaml"
-csv-path: "deploy/olm-catalog/restaurant-operator/0.1.0/restaurant-operator.v0.1.0.clusterserviceversion.yaml"

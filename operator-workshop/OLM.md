@@ -74,7 +74,7 @@ Find all in the [docs](https://github.com/operator-framework/operator-sdk/blob/m
 
 Note: Check how your CSV looks like in the OLM using the [OperatorHub's Preview](https://operatorhub.io/preview)
 
-## Deploy your Cluster Resource Version manually
+## Deploy your Cluster Service Version manually
 
 ### Create the OperatorGroup
 
